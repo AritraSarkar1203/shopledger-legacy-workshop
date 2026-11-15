@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1900 1540" role="img" aria-labelledby="title desc">
+  <title id="title">ShopLedger architecture</title>
+  <desc id="desc">Architecture map of the ShopLedger UI, Express routes, library modules, configuration and JSON file store, including the order placement flow.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" fill="#526579"/></marker>
+    <marker id="flowArrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#d1495b"/></marker>
+    <style>
+      text{font-family:Segoe UI,Arial,sans-serif;fill:#172b4d}.title{font-size:34px;font-weight:700}.subtitle{font-size:16px;fill:#526579}.layer{font-size:17px;font-weight:700;letter-spacing:1px;fill:#526579}.head{font-size:19px;font-weight:700}.body{font-size:14px}.small{font-size:12px;fill:#526579}.route{font-size:13px}.node{fill:#fff;stroke:#9aabc0;stroke-width:1.5;rx:10}.ui{fill:#eef6ff;stroke:#5b8def}.server{fill:#f0f5fa;stroke:#4d6b8a}.router{fill:#fff8e8;stroke:#d6a63e}.lib{fill:#f0faf5;stroke:#54a47b}.config{fill:#f8f1ff;stroke:#9c78c7}.data{fill:#fff1f0;stroke:#d27b70}.dep{fill:none;stroke:#66798d;stroke-width:1.5;marker-end:url(#arrow);opacity:.72}.flow{fill:none;stroke:#d1495b;stroke-width:3;marker-end:url(#flowArrow)}.flowbox{fill:#fff5f5;stroke:#d1495b;stroke-width:1.5;rx:8}.flowtext{font-size:13px;font-weight:700;fill:#9c2635}.num{fill:#d1495b}.numtext{font-size:14px;font-weight:700;fill:#fff;text-anchor:middle;dominant-baseline:middle}
+    </style>
+  </defs>
+  <rect width="1900" height="1540" fill="#f7f9fc"/>
+  <text x="48" y="58" class="title">ShopLedger | Application architecture</text>
+  <text x="50" y="88" class="subtitle">Express app • browser POS and ledger • JSON file persistence</text>
+  <g transform="translate(1450 34)"><line x1="0" y1="8" x2="55" y2="8" class="dep"/><text x="66" y="13" class="small">solid = seen in code</text><line x1="0" y1="34" x2="55" y2="34" class="dep" stroke-dasharray="6 5"/><text x="66" y="39" class="small">dashed = inferred</text></g>
+
+  <text x="50" y="132" class="layer">UI</text>
+  <rect x="50" y="148" width="1800" height="100" rx="12" fill="#eaf1f9" stroke="#ccd8e5"/>
+  <rect x="75" y="165" width="300" height="66" class="node ui"/><text x="94" y="191" class="head">Browser UI</text><text x="94" y="215" class="body">public/index.html • public/js/app.js • public/css/style.css</text>
+  <text x="410" y="184" class="body">POS / order history / Khata / audit &amp; GST reconciliation</text><text x="410" y="210" class="small">Order action: click #place → post('/api/orders', payload)</text>
+
+  <text x="50" y="285" class="layer">SERVER ENTRY</text>
+  <rect x="50" y="301" width="1800" height="96" rx="12" fill="#eaf1f9" stroke="#ccd8e5"/>
+  <rect x="75" y="316" width="520" height="65" class="node server"/><text x="94" y="342" class="head">server.js</text><text x="94" y="365" class="body">Express app • bodyParser.json() • express.static(public)</text>
+  <text x="630" y="343" class="body">Mounts productRoutes, orderRoutes, customerRoutes, reportRoutes at /api</text><text x="630" y="367" class="small">Also GET /orders/:id/invoice → store.read() → orders.get() → invoice.render()</text>
+  <path d="M225 248 L225 316" class="dep"/><path d="M350 301 L350 248" class="dep"/>
+
+  <text x="50" y="433" class="layer">ROUTING • mounted at /api</text>
+  <rect x="50" y="450" width="1800" height="267" rx="12" fill="#fffaf0" stroke="#eadbb7"/>
+  <rect x="75" y="470" width="410" height="221" class="node router"/>
+  <text x="94" y="498" class="head">routes/products.js</text>
+  <text x="94" y="527" class="route">GET /products</text><text x="94" y="550" class="route">GET /coupons</text>
+  <text x="94" y="589" class="small">imports: store, inventory, tax, coupons</text>
+  <rect x="520" y="470" width="410" height="221" class="node router"/>
+  <text x="539" y="498" class="head">routes/orders.js</text>
+  <text x="539" y="527" class="route">GET /orders • GET /orders/:id</text><text x="539" y="550" class="route">POST /orders • POST /orders/:id/cancel</text>
+  <text x="539" y="589" class="small">imports: store, inventory, pricing, coupons, orders, ledger</text>
+  <rect x="965" y="470" width="410" height="221" class="node router"/>
+  <text x="984" y="498" class="head">routes/customers.js</text>
+  <text x="984" y="527" class="route">GET /customers</text><text x="984" y="550" class="route">POST /customers/:id/settle</text>
+  <text x="984" y="589" class="small">imports: store, ledger</text>
+  <rect x="1410" y="470" width="410" height="221" class="node router"/>
+  <text x="1429" y="498" class="head">routes/reports.js</text>
+  <text x="1429" y="527" class="route">GET /reports/dashboard</text><text x="1429" y="550" class="route">GET /reports/gst-reconciliation</text><text x="1429" y="573" class="route">POST /pricing/preview</text><text x="1429" y="596" class="route">GET /admin/export</text>
+  <text x="1429" y="635" class="small">imports: config, store, reports, pricing, coupons</text>
+  <path d="M335 397 L335 441 L280 441 L280 470" class="dep"/><path d="M335 441 L725 441 L725 470" class="dep"/><path d="M335 441 L1170 441 L1170 470" class="dep"/><path d="M335 441 L1615 441 L1615 470" class="dep"/>
+
+  <text x="50" y="754" class="layer">BUSINESS LOGIC • lib/</text>
+  <rect x="50" y="771" width="1800" height="390" rx="12" fill="#eff8f3" stroke="#c9e4d4"/>
+  <g>
+    <rect x="75" y="791" width="335" height="93" class="node lib"/><text x="92" y="818" class="head">lib/store.js</text><text x="92" y="842" class="body">read/write db.json; appendAudit</text>
+    <rect x="435" y="791" width="335" height="93" class="node lib"/><text x="452" y="818" class="head">lib/inventory.js</text><text x="452" y="842" class="body">find, stock checks, reserve/release</text>
+    <rect x="795" y="791" width="335" height="93" class="node lib"/><text x="812" y="818" class="head">lib/pricing.js</text><text x="812" y="842" class="body">subtotal, discount, computeTotals</text>
+    <rect x="1155" y="791" width="335" height="93" class="node lib"/><text x="1172" y="818" class="head">lib/coupons.js</text><text x="1172" y="842" class="body">normalizeCode, validate, discount</text>
+    <rect x="1515" y="791" width="310" height="93" class="node lib"/><text x="1532" y="818" class="head">lib/orders.js</text><text x="1532" y="842" class="body">add/get/cancel/list orders</text>
+    <rect x="75" y="906" width="335" height="93" class="node lib"/><text x="92" y="933" class="head">lib/ledger.js</text><text x="92" y="957" class="body">customers, Khata charges/settlements</text>
+    <rect x="435" y="906" width="335" height="93" class="node lib"/><text x="452" y="933" class="head">lib/tax.js</text><text x="452" y="957" class="body">HSN GST rates; CGST/SGST split</text>
+    <rect x="795" y="906" width="335" height="93" class="node lib"/><text x="812" y="933" class="head">lib/reports.js</text><text x="812" y="957" class="body">dashboard summary; GST reconciliation</text>
+    <rect x="1155" y="906" width="335" height="93" class="node lib"/><text x="1172" y="933" class="head">lib/invoice.js</text><text x="1172" y="957" class="body">computeInvoiceFigures; render HTML</text>
+    <rect x="1515" y="906" width="310" height="93" class="node lib"/><text x="1532" y="933" class="head">lib/dates.js</text><text x="1532" y="957" class="body">today; normalizeDateKey; getFiscalYear</text>
+  </g>
+  <text x="77" y="1045" class="small">Direct module dependencies (imports): orders → dates, inventory, ledger • pricing → tax, coupons • ledger → dates • reports → inventory, ledger, invoice • invoice → config • coupons, tax, inventory → config</text>
+
+  <text x="50" y="1201" class="layer">CONFIG / DATA</text>
+  <rect x="50" y="1218" width="1800" height="269" rx="12" fill="#f7f2fc" stroke="#ddcfea"/>
+  <rect x="75" y="1241" width="670" height="207" class="node config"/><text x="96" y="1272" class="head">config.js</text><text x="96" y="1301" class="body">port • adminKey • shop</text><text x="96" y="1328" class="body">tax.defaultRate • tax.hsnSlabs</text><text x="96" y="1355" class="body">inventory.defaultReorderLevel • inventory.allowBackorder</text><text x="96" y="1382" class="body">coupons (SAVE10, FLAT50, WELCOME, WHOLESALE15, DIWALI20)</text>
+  <rect x="1110" y="1241" width="715" height="207" class="node data"/><text x="1132" y="1272" class="head">data/db.json • file store</text><text x="1132" y="1302" class="body">products • orders • customers • settlements • auditLog</text><text x="1132" y="1331" class="body">nextOrderId • nextSettlementId</text><text x="1132" y="1370" class="small">lib/store.js: readFileSync / writeFileSync</text>
+
+  <!-- Observed module import dependencies -->
+  <path d="M280 470 L245 443 L245 884" class="dep"/><path d="M280 470 L430 449 L610 884" class="dep"/><path d="M280 470 L1470 448 L1320 884" class="dep"/><path d="M280 470 L1480 455 L610 998" class="dep"/>
+  <path d="M725 470 L715 448 L245 884" class="dep"/><path d="M725 470 L690 448 L610 884" class="dep"/><path d="M725 470 L770 448 L960 884" class="dep"/><path d="M725 470 L900 450 L1320 884" class="dep"/><path d="M725 470 L905 448 L1670 884" class="dep"/><path d="M725 470 L905 450 L245 998" class="dep"/>
+  <path d="M1170 470 L1170 452 L245 884" class="dep"/><path d="M1170 470 L1200 450 L245 998" class="dep"/>
+  <path d="M1615 470 L1600 452 L245 884" class="dep"/><path d="M1615 470 L1620 451 L960 884" class="dep"/><path d="M1615 470 L1610 449 L960 998" class="dep"/><path d="M1615 470 L1610 450 L1320 998" class="dep"/><path d="M1615 470 L1610 448 L960 884" class="dep"/>
+  <!-- Observed library imports/config and persistence connections -->
+  <path d="M610 884 L610 1168 L410 1168 L410 1241" class="dep"/><path d="M1320 884 L1320 1180 L600 1180 L600 1241" class="dep"/><path d="M610 998 L610 1190 L620 1190 L620 1241" class="dep"/><path d="M1320 998 L1320 1198 L700 1198 L700 1241" class="dep"/>
+  <path d="M245 884 L245 1165 L1110 1165 L1110 1241" class="dep"/>
+  <!-- server.js imports config, store, orders and invoice directly -->
+  <path d="M595 350 L1850 350 L1850 1520 L745 1520 L745 1448" class="dep"/>
+  <path d="M595 360 L1840 360 L1840 1510 L100 1510 L100 884" class="dep"/>
+  <path d="M595 370 L1830 370 L1830 1500 L1800 1500 L1800 884" class="dep"/>
+  <path d="M595 380 L1820 380 L1820 1490 L1165 1490 L1165 998" class="dep"/>
+
+  <!-- Numbered, directly observed order-placement path -->
+  <path d="M225 231 L225 265 L490 265 L490 335 L548 335" class="flow"/>
+  <circle cx="240" cy="265" r="13" class="num"/><text x="240" y="265" class="numtext">1</text><text x="261" y="272" class="flowtext">#place → post('/api/orders')</text>
+  <path d="M725 691 L725 738 L612 738 L612 791" class="flow"/><circle cx="710" cy="738" r="13" class="num"/><text x="710" y="738" class="numtext">2</text><text x="732" y="744" class="flowtext">POST /orders → inventory.check</text>
+  <path d="M770 838 L790 838" class="flow"/><circle cx="781" cy="815" r="13" class="num"/><text x="781" y="815" class="numtext">3</text><text x="795" y="809" class="flowtext">pricing.computeTotals</text>
+  <path d="M610 884 L610 894 L245 894 L245 906" class="flow"/><circle cx="595" cy="894" r="13" class="num"/><text x="595" y="894" class="numtext">4</text><text x="615" y="900" class="flowtext">ledger.chargeOrderToKhata (Khata only)</text>
+  <path d="M725 691 L730 760 L1605 760 L1605 791" class="flow"/><circle cx="1450" cy="760" r="13" class="num"/><text x="1450" y="760" class="numtext">5</text><text x="1472" y="766" class="flowtext">inventory.reserve → orders.add</text>
+  <path d="M1670 884 L1670 1150 L1460 1150 L1460 1241" class="flow"/><circle cx="1670" cy="1125" r="13" class="num"/><text x="1670" y="1125" class="numtext">6</text><text x="1480" y="1143" class="flowtext">store.write(db)</text>
+  <path d="M725 691 L735 707 L1810 707 L1810 724" class="flow"/><circle cx="1779" cy="707" r="13" class="num"/><text x="1779" y="707" class="numtext">7</text><text x="1510" y="700" class="flowtext">res.status(201).json(order)</text>
+  <text x="78" y="1470" class="small">Order-flow numbers follow routes/orders.js POST /orders. Khata debit is conditional; the code writes the updated JSON before returning the 201 response.</text>
+</svg>
